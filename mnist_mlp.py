@@ -7,6 +7,7 @@ Gets to 98.40% test accuracy after 20 epochs
 
 from __future__ import print_function
 
+
 import keras
 import numpy as np
 from keras.datasets import mnist
@@ -14,6 +15,19 @@ from keras.models import Sequential, load_model
 from keras.layers import Dense, Dropout
 from keras.optimizers import RMSprop
 from keras.preprocessing import image
+
+def load_keras_model():
+   model = load_model('models') # from ./models directory
+   return model
+
+def predict_number(model, img, width, height):
+   test_image = image.img_to_array(img)
+   test_image = test_image.astype('float32')
+   test_image = test_image.reshape(width, height)
+   test_image /= 255
+   test_image = test_image.reshape(1, width * height)
+   result = model.predict(test_image, batch_size=1)
+   return np.argmax(result)
 
 batch_size = 128
 num_classes = 10
@@ -38,28 +52,28 @@ y_train = keras.utils.to_categorical(y_train, num_classes)
 y_test = keras.utils.to_categorical(y_test, num_classes)
 
 # mlp model for training
-# model = Sequential()
-# model.add(Dense(512, activation='relu', input_shape=(784,)))
-# model.add(Dropout(0.2))
-# model.add(Dense(512, activation='relu'))
-# model.add(Dropout(0.2))
-# model.add(Dense(num_classes, activation='softmax'))
+model = Sequential()
+model.add(Dense(512, activation='relu', input_shape=(784,)))
+model.add(Dropout(0.2))
+model.add(Dense(512, activation='relu'))
+model.add(Dropout(0.2))
+model.add(Dense(num_classes, activation='softmax'))
 
-# model.summary()
+model.summary()
 
-# model.compile(loss='categorical_crossentropy',
-#               optimizer=RMSprop(),
-#               metrics=['accuracy'])
+model.compile(loss='categorical_crossentropy',
+              optimizer=RMSprop(),
+              metrics=['accuracy'])
 
-# history = model.fit(x_train, y_train,
-#                     batch_size=batch_size,
-#                     epochs=epochs,
-#                     verbose=1,
-#                     validation_data=(x_test, y_test))
+history = model.fit(x_train, y_train,
+                    batch_size=batch_size,
+                    epochs=epochs,
+                    verbose=1,
+                    validation_data=(x_test, y_test))
 
 # save model here
-# print('saving model...')
-# model.save('models')
+print('saving model...')
+model.save('models')
 
 # load model
 print('Loading model...')
